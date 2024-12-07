@@ -1,29 +1,19 @@
-import { View, StyleSheet } from 'react-native'
+import { Redirect, router } from 'expo-router'
+import { onAuthStateChanged } from 'firebase/auth'
+import { useEffect } from 'react'
 
-import Header from '../components/Header'
-import MemoListItem from '../components/MemoListItem'
-import CircleButton from '../components/CircleButton'
+import { auth } from '../config'
 
-const Index = () => {
-    return (
-        <View style={styles.container}>
-            <Header />
-            <View>
-                <MemoListItem />
-                <MemoListItem />
-                <MemoListItem />
-            </View>
-            <CircleButton>+</CircleButton>
-        </View>
-    )
+const Index = (): JSX.Element => {
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('logged in')
+                router.replace('/memo/list')
+            }
+        })
+    }, [])
+    return <Redirect href="auth/sign_up" />
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFFF'
-    }
-
-})
 
 export default Index

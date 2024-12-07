@@ -1,16 +1,29 @@
-import {View, Text, StyleSheet} from 'react-native' 
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native' 
 
-const MemoListItem = (): JSX.Element => {
+import { Link } from 'expo-router'
+
+import Icon from './Icon'
+import { type Memo } from '../../types/memo'
+
+interface Prop {
+    memo: Memo
+}
+
+const MemoListItem = (props: Prop): JSX.Element => {
+    const { memo } = props
+    const dateString = memo.updatedAt.toDate().toLocaleString('ja-jp')
     return (
-        <View style={styles.memoListItem}>
+        <Link href='/memo/detail' asChild>
+        <TouchableOpacity style={styles.memoListItem}>
             <View>
-                <Text style={styles.memoListItemTitle}>買い物リスト</Text>
-                <Text style={styles.memoListItemDate}>2023/10/1 10:00</Text>
+                <Text style={styles.memoListItemTitle}>{memo.bodyText}</Text>
+                <Text style={styles.memoListItemDate}>{dateString}</Text>
             </View>
-            <View>
-                <Text>X</Text>
-            </View>
-        </View>
+            <TouchableOpacity>
+                <Icon name='delete' size={40} color='#B0B0B0'/>
+            </TouchableOpacity>
+        </TouchableOpacity>
+        </Link>
     )
 }
 
