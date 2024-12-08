@@ -1,25 +1,56 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native' 
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native' 
 
 import { Link } from 'expo-router'
 
 import Icon from './Icon'
 import { type Memo } from '../../types/memo'
+import { deleteDoc, doc } from 'firebase/firestore'
+import { db, auth } from '../config'
 
 interface Prop {
     memo: Memo
 }
 
-const MemoListItem = (props: Prop): JSX.Element => {
+const handlePress = (id: string): void => {
+    if (auth.currentUser === null) {
+        return
+    }
+    const ref = doc(db, `users/${auth.currentUser.uid}/memos`, id)
+    Alert.alert('メモを削除しますか？', 'よろしいですか？', [
+        {
+            text: 'キャンセル',
+            style: 'cancel'
+        },
+        {
+            text: '削除する',
+            style: 'destructive',
+            onPress: () => {
+                deleteDoc(ref)
+                .catch(() => {
+                    console.error( Alert.alert('削除に失敗しました'))
+                })
+            }
+        }
+    ])
+}
+
+const MemoListItem = (props: Prop): JSX.Element | null => {
     const { memo } = props
-    const dateString = memo.updatedAt.toDate().toLocaleString('ja-jp')
+    const { bodyText, updatedAt } = memo
+    if (bodyText === null || updatedAt === null) {
+        return null
+    }
+    const dateString = updatedAt.toDate().toLocaleString('ja-JP')
     return (
-        <Link href='/memo/detail' asChild>
+        <Link 
+            href={{ pathname: '/memo/detail', params: { id: memo.id } }}
+            asChild>
         <TouchableOpacity style={styles.memoListItem}>
             <View>
-                <Text style={styles.memoListItemTitle}>{memo.bodyText}</Text>
+                <Text numberOfLines={1} style={styles.memoListItemTitle}>{bodyText}</Text>
                 <Text style={styles.memoListItemDate}>{dateString}</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => { handlePress(memo.id) }}>
                 <Icon name='delete' size={40} color='#B0B0B0'/>
             </TouchableOpacity>
         </TouchableOpacity>

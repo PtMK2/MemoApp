@@ -1,6 +1,6 @@
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, FlatList } from 'react-native'
 import { router, useNavigation } from 'expo-router'
-import { memo, useEffect , useState} from 'react'
+import { useEffect , useState} from 'react'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 
 import MemoListItem from '../../components/MemoListItem'
@@ -37,7 +37,7 @@ const List = (): JSX.Element => {
                 remoteMemos.push({
                     id: doc.id,
                     bodyText: bodyText,
-                    updatedAt: updatedAt.toDate()
+                    updatedAt
                 })
             })
             setMemos(remoteMemos)
@@ -46,11 +46,10 @@ const List = (): JSX.Element => {
     }, [])
     return (
         <View style={styles.container}>
-            <View>
-                {memos.map((memo) => {
-                    return <MemoListItem memo={memo}/>
-                })}
-            </View>
+            <FlatList
+                data={memos}
+                renderItem={(({item}) => { return <MemoListItem memo={item} /> })}
+            />
             <CircleButton onPress={handlePress}>
                 <Icon name='plus' size ={40} color='#fffffff'/>
             </CircleButton>
